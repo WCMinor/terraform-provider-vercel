@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -20,7 +19,7 @@ func TestAcc_ProjectDomain(t *testing.T) {
 
 func TestAcc_ProjectDomainWithTeamID(t *testing.T) {
 	t.Parallel()
-	testAccProjectDomain(t, os.Getenv("VERCEL_TERRAFORM_TESTING_TEAM"))
+	testAccProjectDomain(t, testTeam())
 }
 
 func testAccProjectDomainExists(n, teamID, domain string) resource.TestCheckFunc {
@@ -34,8 +33,7 @@ func testAccProjectDomainExists(n, teamID, domain string) resource.TestCheckFunc
 			return fmt.Errorf("no projectID is set")
 		}
 
-		c := client.New(os.Getenv("VERCEL_API_TOKEN"))
-		_, err := c.GetProjectDomain(context.TODO(), rs.Primary.ID, domain, teamID)
+		_, err := testClient().GetProjectDomain(context.TODO(), rs.Primary.ID, domain, teamID)
 		return err
 	}
 }
@@ -51,8 +49,7 @@ func testAccProjectDomainDestroy(n, teamID, domain string) resource.TestCheckFun
 			return fmt.Errorf("no projectID is set")
 		}
 
-		c := client.New(os.Getenv("VERCEL_API_TOKEN"))
-		_, err := c.GetProjectDomain(context.TODO(), rs.Primary.ID, domain, teamID)
+		_, err := testClient().GetProjectDomain(context.TODO(), rs.Primary.ID, domain, teamID)
 		var apiErr client.APIError
 		if err == nil {
 			return fmt.Errorf("Found project domain but expected it to have been deleted")

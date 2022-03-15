@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -20,7 +19,7 @@ func TestAcc_Project(t *testing.T) {
 
 func TestAcc_ProjectWithTeamID(t *testing.T) {
 	t.Parallel()
-	testAccProject(t, os.Getenv("VERCEL_TERRAFORM_TESTING_TEAM"))
+	testAccProject(t, testTeam())
 }
 
 func TestAcc_ProjectAddingEnvAfterInitialCreation(t *testing.T) {
@@ -101,8 +100,7 @@ func testAccProjectExists(n, teamID string) resource.TestCheckFunc {
 			return fmt.Errorf("no projectID is set")
 		}
 
-		c := client.New(os.Getenv("VERCEL_API_TOKEN"))
-		_, err := c.GetProject(context.TODO(), rs.Primary.ID, teamID)
+		_, err := testClient().GetProject(context.TODO(), rs.Primary.ID, teamID)
 		return err
 	}
 }
@@ -118,8 +116,7 @@ func testAccProjectDestroy(n, teamID string) resource.TestCheckFunc {
 			return fmt.Errorf("no projectID is set")
 		}
 
-		c := client.New(os.Getenv("VERCEL_API_TOKEN"))
-		_, err := c.GetProject(context.TODO(), rs.Primary.ID, teamID)
+		_, err := testClient().GetProject(context.TODO(), rs.Primary.ID, teamID)
 
 		var apiErr client.APIError
 		if err == nil {

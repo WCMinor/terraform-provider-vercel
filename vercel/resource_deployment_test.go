@@ -3,14 +3,12 @@ package vercel_test
 import (
 	"context"
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
-	"github.com/vercel/terraform-provider-vercel/client"
 )
 
 func testAccDeploymentExists(n, teamID string) resource.TestCheckFunc {
@@ -24,8 +22,7 @@ func testAccDeploymentExists(n, teamID string) resource.TestCheckFunc {
 			return fmt.Errorf("no DeploymentID is set")
 		}
 
-		c := client.New(os.Getenv("VERCEL_API_TOKEN"))
-		_, err := c.GetDeployment(context.TODO(), rs.Primary.ID, teamID)
+		_, err := testClient().GetDeployment(context.TODO(), rs.Primary.ID, teamID)
 		return err
 	}
 }
@@ -49,8 +46,7 @@ func testAccEnvironmentSet(n, teamID string, envs ...string) resource.TestCheckF
 			return fmt.Errorf("no DeploymentID is set")
 		}
 
-		c := client.New(os.Getenv("VERCEL_API_TOKEN"))
-		dpl, err := c.GetDeployment(context.TODO(), rs.Primary.ID, teamID)
+		dpl, err := testClient().GetDeployment(context.TODO(), rs.Primary.ID, teamID)
 		if err != nil {
 			return err
 		}
@@ -75,7 +71,7 @@ func TestAcc_Deployment(t *testing.T) {
 }
 
 func TestAcc_DeploymentWithTeamID(t *testing.T) {
-	testAccDeployment(t, os.Getenv("VERCEL_TERRAFORM_TESTING_TEAM"))
+	testAccDeployment(t, testTeam())
 }
 
 func TestAcc_DeploymentWithEnvironment(t *testing.T) {
