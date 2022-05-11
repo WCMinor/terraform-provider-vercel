@@ -112,7 +112,7 @@ func (r resourceAlias) Read(ctx context.Context, req tfsdk.ReadResourceRequest, 
 		return
 	}
 
-	out, err := r.p.client.GetAlias(ctx, state.ID.Value, state.TeamID.Value)
+	out, err := r.p.client.GetAlias(ctx, state.AliasUID, state.TeamID.Value)
 	var apiErr client.APIError
 	if err != nil && errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -120,20 +120,20 @@ func (r resourceAlias) Read(ctx context.Context, req tfsdk.ReadResourceRequest, 
 	}
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error reading deployment",
-			fmt.Sprintf("Could not get deployment %s %s, unexpected error: %s",
+			"Error reading alias",
+			fmt.Sprintf("Could not get alias %s %s, unexpected error: %s",
 				state.TeamID.Value,
-				state.ID.Value,
+				state.AliasUID.Value,
 				err,
 			),
 		)
 		return
 	}
 
-	result := convertResponseToDeployment(out, state)
-	tflog.Trace(ctx, "read deployment", map[string]interface{}{
-		"team_id":    result.TeamID.Value,
-		"project_id": result.ID.Value,
+	result := convertResponseToAlias(out, state)
+	tflog.Trace(ctx, "read alias", map[string]interface{}{
+		"team_id":   result.TeamID.Value,
+		"alias_uid": result.AliasUID.Value,
 	})
 
 	diags = resp.State.Set(ctx, result)
@@ -143,11 +143,9 @@ func (r resourceAlias) Read(ctx context.Context, req tfsdk.ReadResourceRequest, 
 	}
 }
 
-// Update updates the deployment state.
-// Note that only the `delete_on_destroy` field is updatable, and this does not affect Vercel. So it is just a case
-// of setting terraform state.
-func (r resourceDeployment) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
-	var plan Deployment
+// Update updates the Alias state.
+func (r resourceAlias) Update(ctx context.Context, req tfsdk.UpdateResourceRequest, resp *tfsdk.UpdateResourceResponse) {
+	var plan Alias
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -158,50 +156,37 @@ func (r resourceDeployment) Update(ctx context.Context, req tfsdk.UpdateResource
 		return
 	}
 
-	var state Deployment
+	var state Alias
 	diags = req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	// Copy over the planned field only
-	state.DeleteOnDestroy = plan.DeleteOnDestroy
-	diags = resp.State.Set(ctx, state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }
 
-// Delete conditionally deletes a Deployment.
-// Typically, Vercel users do not delete old Deployments so deployments will be deleted only if delete_on_destroy
-// parameter is set to true.
-func (r resourceDeployment) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
-	var state Deployment
+// Delete deletes an Alias.
+func (r resourceAlias) Delete(ctx context.Context, req tfsdk.DeleteResourceRequest, resp *tfsdk.DeleteResourceResponse) {
+	var state Alias
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if state.DeleteOnDestroy.Value {
-		dResp, err := r.p.client.DeleteDeployment(ctx, state.ID.Value, state.TeamID.Value)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error deleting deployment",
-				fmt.Sprintf(
-					"Could not delete deployment %s, unexpected error: %s",
-					state.URL.Value,
-					err,
-				),
-			)
-			return
-		}
-		tflog.Trace(ctx, fmt.Sprintf("deleted deployment %s", dResp.UID))
-	} else {
-		tflog.Trace(ctx, fmt.Sprintf("deployment %s deleted from the Terraform state", state.ID.Value))
+	dResp, err := r.p.client.DeleteAlias(ctx, state.AliasUID.Value, state.TeamID.Value)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error deleting alias",
+			fmt.Sprintf(
+				"Could not delete alias %s, unexpected error: %s",
+				state.Alias.Value,
+				err,
+			),
+		)
+		return
 	}
+	tflog.Trace(ctx, fmt.Sprintf("deleted alias %s", dResp.UID))
 	resp.State.RemoveResource(ctx)
 }
 

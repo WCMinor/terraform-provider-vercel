@@ -9,8 +9,9 @@ import (
 type Alias struct {
 	Alias        types.String `tfsdk:"alias"`
 	DeploymentId types.String `tfsdk:"deployment_id"`
-	TeamId       types.String `tfsdk:"team_id"`
+	TeamID       types.String `tfsdk:"team_id"`
 	Production   types.Bool   `tfsdk:"production"`
+	AliasUID     types.String `tfsdk:"-"`
 }
 
 // convertResponseToDeployment is used to populate terraform state based on an API response.
@@ -36,6 +37,7 @@ func convertResponseToAlias(response client.AliasResponse, plan Alias) Alias {
 	return Alias{
 		Alias:        types.String{Value: response.Alias},
 		DeploymentId: plan.DeploymentId,
-		TeamID:       plan.TeamId,
+		AliasUID:     types.String{Value: response.UID},
+		TeamID:       plan.TeamID,
 	}
 }
