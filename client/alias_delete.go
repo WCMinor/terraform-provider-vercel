@@ -10,8 +10,7 @@ import (
 
 // DeleteAliasResponse defines the response the Vercel API returns when an alias is deleted.
 type DeleteAliasResponse struct {
-	State string `json:"state"`
-	UID   string `json:"uid"`
+	Status string `json:"status"`
 }
 
 // DeleteAlias deletes an alias within Vercel.
