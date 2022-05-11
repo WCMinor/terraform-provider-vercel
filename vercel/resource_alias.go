@@ -89,11 +89,10 @@ func (r resourceAlias) Create(ctx context.Context, req tfsdk.CreateResourceReque
 	}
 
 	out, err := r.p.client.CreateAlias(ctx, car, plan.TeamID.Value, plan.DeploymentId)
-	//FIXME
-	result := convertResponseToDeployment(out, plan)
-	tflog.Trace(ctx, "created deployment", map[string]interface{}{
-		"team_id":    result.TeamID.Value,
-		"project_id": result.ID.Value,
+	result := convertResponseToAlias(out, plan)
+	tflog.Trace(ctx, "created alias", map[string]interface{}{
+		"team_id":       result.TeamId.Value,
+		"deployment_id": result.DeploymentId.Value,
 	})
 
 	diags = resp.State.Set(ctx, result)
@@ -105,15 +104,15 @@ func (r resourceAlias) Create(ctx context.Context, req tfsdk.CreateResourceReque
 
 // Read will read a file from the filesytem and provide terraform with information about it.
 // It is called by the provider whenever data source values should be read to update state.
-func (r resourceDeployment) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
-	var state Deployment
+func (r resourceAlias) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
+	var state Alias
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	out, err := r.p.client.GetDeployment(ctx, state.ID.Value, state.TeamID.Value)
+	out, err := r.p.client.GetAlias(ctx, state.ID.Value, state.TeamID.Value)
 	var apiErr client.APIError
 	if err != nil && errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -207,7 +206,7 @@ func (r resourceDeployment) Delete(ctx context.Context, req tfsdk.DeleteResource
 }
 
 // ImportState is not implemented as it is not possible to get all the required information for a
-// Deployment resource from the vercel API.
-func (r resourceDeployment) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
+// Alias resource from the vercel API.
+func (r resourceAlias) ImportState(ctx context.Context, req tfsdk.ImportResourceStateRequest, resp *tfsdk.ImportResourceStateResponse) {
 	tfsdk.ResourceImportStateNotImplemented(ctx, "", resp)
 }
