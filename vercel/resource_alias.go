@@ -121,7 +121,7 @@ func (r resourceAlias) Read(ctx context.Context, req tfsdk.ReadResourceRequest, 
 		return
 	}
 
-	out, err := r.p.client.GetAlias(ctx, state.AliasUID, state.TeamID.Value)
+	out, err := r.p.client.GetAlias(ctx, state.AliasUID.Value, state.TeamID.Value)
 	var apiErr client.APIError
 	if err != nil && errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -195,7 +195,7 @@ func (r resourceAlias) Delete(ctx context.Context, req tfsdk.DeleteResourceReque
 		)
 		return
 	}
-	tflog.Trace(ctx, fmt.Sprintf("deleted alias"))
+	tflog.Trace(ctx, "deleted alias")
 	resp.State.RemoveResource(ctx)
 }
 

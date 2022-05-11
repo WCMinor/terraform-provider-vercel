@@ -14,15 +14,8 @@ type CreateAliasRequest struct {
 	Alias string `json:"name"`
 }
 
-// CreateAliasResponse defines the response the Vercel API returns when an alias is created.
-type CreateAliasResponse struct {
-	UID     string `json:"uid"`
-	Alias   string `json:"alias"`
-	Created string `json:"created"`
-}
-
 // CreateAlias creates an alias within Vercel.
-func (c *Client) CreateAlias(ctx context.Context, request CreateAliasRequest, deploymentID string, teamID string) (r CreateAliasResponse, err error) {
+func (c *Client) CreateAlias(ctx context.Context, request CreateAliasRequest, deploymentID string, teamID string) (r AliasResponse, err error) {
 	url := fmt.Sprintf("%s/now/deployments/%s/aliases", c.baseURL, deploymentID)
 	if teamID != "" {
 		url = fmt.Sprintf("%s?teamId=%s", url, teamID)
