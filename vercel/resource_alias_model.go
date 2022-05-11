@@ -13,9 +13,9 @@ type Alias struct {
 	TeamID       types.String `tfsdk:"team_id"`
 }
 
-// convertResponseToDeployment is used to populate terraform state based on an API response.
+// convertResponseToAlias is used to populate terraform state based on an API response.
 // Where possible, values from the API response are used to populate state. If not possible,
-// values from the existing deployment state are used.
+// values from plan are used.
 func convertResponseToAlias(response client.AliasResponse, plan Alias) Alias {
 	return Alias{
 		Alias:        types.String{Value: response.Alias},

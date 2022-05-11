@@ -14,22 +14,16 @@ import (
 
 type resourceAliasType struct{}
 
-// GetSchema returns the schema information for a deployment resource.
+// GetSchema returns the schema information for an alias resource.
 func (r resourceAliasType) GetSchema(_ context.Context) (tfsdk.Schema, diag.Diagnostics) {
 	return tfsdk.Schema{
 		Description: `
-Provides a Deployment resource.
+Provides an alias resource.
 
-A Deployment is the result of building your Project and making it available through a live URL.
-
-When making deployments, the Project will be uploaded and transformed into a production-ready output through the use of a Build Step.
-
-Once the build step has completed successfully, a new, immutable deployment will be made available at the preview URL. Deployments are retained indefinitely unless deleted manually.
-
--> In order to provide files to a deployment, you'll need to use the ` + "`vercel_file` or `vercel_project_directory` data sources.",
+An alias allows a deployment to be accessed through a different URL.`,
 		Attributes: map[string]tfsdk.Attribute{
 			"alias": {
-				Description:   "The alias to be set on the deployment. It will become the subdomain of the Vercel roject top level domain",
+				Description:   "The alias to be set on the deployment. It will become the subdomain of the Vercel project top level domain",
 				Required:      true,
 				PlanModifiers: tfsdk.AttributePlanModifiers{tfsdk.RequiresReplace()},
 				Type:          types.StringType,
@@ -61,8 +55,7 @@ type resourceAlias struct {
 	p provider
 }
 
-// Create will create a deployment within Vercel. This is done by first attempting to trigger a deployment, seeing what
-// files are required, uploading those files, and then attempting to create a deployment again.
+// Create will create an alias within Vercel.
 // This is called automatically by the provider when a new resource should be created.
 func (r resourceAlias) Create(ctx context.Context, req tfsdk.CreateResourceRequest, resp *tfsdk.CreateResourceResponse) {
 	if !r.p.configured {
@@ -78,8 +71,8 @@ func (r resourceAlias) Create(ctx context.Context, req tfsdk.CreateResourceReque
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		resp.Diagnostics.AddError(
-			"Error getting deployment plan",
-			"Error getting deployment plan",
+			"Error getting alias plan",
+			"Error getting alias plan",
 		)
 		return
 	}
@@ -87,7 +80,6 @@ func (r resourceAlias) Create(ctx context.Context, req tfsdk.CreateResourceReque
 	car := client.CreateAliasRequest{
 		Alias: plan.Alias.Value,
 	}
-
 	out, err := r.p.client.CreateAlias(ctx, car, plan.DeploymentId.Value, plan.TeamID.Value)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -111,8 +103,8 @@ func (r resourceAlias) Create(ctx context.Context, req tfsdk.CreateResourceReque
 	}
 }
 
-// Read will read a file from the filesytem and provide terraform with information about it.
-// It is called by the provider whenever data source values should be read to update state.
+// Read will read alias information by requesting it from the Vercel API, and will update terraform
+// with this information.
 func (r resourceAlias) Read(ctx context.Context, req tfsdk.ReadResourceRequest, resp *tfsdk.ReadResourceResponse) {
 	var state Alias
 	diags := req.State.Get(ctx, &state)
@@ -159,8 +151,8 @@ func (r resourceAlias) Update(ctx context.Context, req tfsdk.UpdateResourceReque
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		resp.Diagnostics.AddError(
-			"Error getting deployment plan",
-			"Error getting deployment plan",
+			"Error getting alias plan",
+			"Error getting alias plan",
 		)
 		return
 	}
