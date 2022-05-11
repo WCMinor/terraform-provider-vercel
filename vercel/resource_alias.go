@@ -88,7 +88,8 @@ func (r resourceAlias) Create(ctx context.Context, req tfsdk.CreateResourceReque
 		Alias: plan.Alias.Value,
 	}
 
-	out, err := r.p.client.CreateAlias(ctx, car, plan.TeamID.Value, plan.DeploymentId)
+	out, err := r.p.client.CreateAlias(ctx, car, plan.DeploymentId.Value, plan.TeamID.Value)
+	// TODO: handle err
 	result := convertResponseToAlias(out, plan)
 	tflog.Trace(ctx, "created alias", map[string]interface{}{
 		"team_id":       result.TeamId.Value,
