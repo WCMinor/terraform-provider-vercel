@@ -11,7 +11,7 @@ import (
 
 // CreateAliasRequest defines the request the Vercel API expects in order to create an alias.
 type CreateAliasRequest struct {
-	Alias string `json:"name"`
+	Alias string `json:"alias"`
 }
 
 // CreateAlias creates an alias within Vercel.
