@@ -37,7 +37,7 @@ func (c *Client) DeleteAlias(ctx context.Context, aliasUID string, teamID string
 	})
 	err = c.doRequest(req, &r)
 	if err != nil {
-		return r, err
+		return r, fmt.Errorf("url: %s, err: %s", url, err)
 	}
 
 	return r, nil

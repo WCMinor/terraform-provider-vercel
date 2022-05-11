@@ -40,6 +40,10 @@ An alias allows a deployment to be accessed through a different URL.`,
 				PlanModifiers: tfsdk.AttributePlanModifiers{tfsdk.RequiresReplace()},
 				Type:          types.StringType,
 			},
+			"uid": {
+				Computed: true,
+				Type:     types.StringType,
+			},
 		},
 	}, nil
 }
@@ -93,7 +97,7 @@ func (r resourceAlias) Create(ctx context.Context, req tfsdk.CreateResourceReque
 	tflog.Trace(ctx, "created alias", map[string]interface{}{
 		"team_id":       plan.TeamID.Value,
 		"deployment_id": plan.DeploymentId.Value,
-		"alias_uid":     result.AliasUID.Value,
+		"alias_uid":     result.UID.Value,
 	})
 
 	diags = resp.State.Set(ctx, result)
@@ -113,7 +117,7 @@ func (r resourceAlias) Read(ctx context.Context, req tfsdk.ReadResourceRequest, 
 		return
 	}
 
-	out, err := r.p.client.GetAlias(ctx, state.AliasUID.Value, state.TeamID.Value)
+	out, err := r.p.client.GetAlias(ctx, state.UID.Value, state.TeamID.Value)
 	var apiErr client.APIError
 	if err != nil && errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
@@ -124,7 +128,7 @@ func (r resourceAlias) Read(ctx context.Context, req tfsdk.ReadResourceRequest, 
 			"Error reading alias",
 			fmt.Sprintf("Could not get alias %s %s, unexpected error: %s",
 				state.TeamID.Value,
-				state.AliasUID.Value,
+				state.UID.Value,
 				err,
 			),
 		)
@@ -134,7 +138,7 @@ func (r resourceAlias) Read(ctx context.Context, req tfsdk.ReadResourceRequest, 
 	result := convertResponseToAlias(out, state)
 	tflog.Trace(ctx, "read alias", map[string]interface{}{
 		"team_id":   result.TeamID.Value,
-		"alias_uid": result.AliasUID.Value,
+		"alias_uid": result.UID.Value,
 	})
 
 	diags = resp.State.Set(ctx, result)
@@ -175,7 +179,7 @@ func (r resourceAlias) Delete(ctx context.Context, req tfsdk.DeleteResourceReque
 		return
 	}
 
-	_, err := r.p.client.DeleteAlias(ctx, state.AliasUID.Value, state.TeamID.Value)
+	_, err := r.p.client.DeleteAlias(ctx, state.UID.Value, state.TeamID.Value)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting alias",

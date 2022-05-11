@@ -8,7 +8,7 @@ import (
 // Alias represents the terraform state for an alias resource.
 type Alias struct {
 	Alias        types.String `tfsdk:"alias"`
-	AliasUID     types.String `tfsdk:"-"`
+	UID          types.String `tfsdk:"uid"`
 	DeploymentId types.String `tfsdk:"deployment_id"`
 	TeamID       types.String `tfsdk:"team_id"`
 }
@@ -18,8 +18,8 @@ type Alias struct {
 // values from plan are used.
 func convertResponseToAlias(response client.AliasResponse, plan Alias) Alias {
 	return Alias{
-		Alias:        types.String{Value: response.Alias},
-		AliasUID:     types.String{Value: response.UID},
+		Alias:        plan.Alias,
+		UID:          types.String{Value: response.UID},
 		DeploymentId: plan.DeploymentId,
 		TeamID:       plan.TeamID,
 	}
