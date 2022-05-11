@@ -183,7 +183,7 @@ func (r resourceAlias) Delete(ctx context.Context, req tfsdk.DeleteResourceReque
 		return
 	}
 
-	dResp, err := r.p.client.DeleteAlias(ctx, state.AliasUID.Value, state.TeamID.Value)
+	_, err := r.p.client.DeleteAlias(ctx, state.AliasUID.Value, state.TeamID.Value)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error deleting alias",
@@ -195,7 +195,7 @@ func (r resourceAlias) Delete(ctx context.Context, req tfsdk.DeleteResourceReque
 		)
 		return
 	}
-	tflog.Trace(ctx, fmt.Sprintf("deleted alias %s", dResp.UID))
+	tflog.Trace(ctx, fmt.Sprintf("deleted alias"))
 	resp.State.RemoveResource(ctx)
 }
 
