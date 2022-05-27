@@ -63,6 +63,7 @@ func (p *vercelProvider) GetDataSources(_ context.Context) (map[string]provider.
 		"vercel_project":           dataSourceProjectType{},
 		"vercel_project_directory": dataSourceProjectDirectoryType{},
 		"vercel_alias":             dataSourceAliasType{},
+		"vercel_deployment":        dataSourceDeploymentType{},
 	}, nil
 }
 

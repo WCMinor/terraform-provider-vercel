@@ -108,6 +108,11 @@ terraform to your Deployment.
 				PlanModifiers: tfsdk.AttributePlanModifiers{resource.RequiresReplace()},
 				Type:          types.StringType,
 			},
+			"sha": {
+				Description: "The specific commit hash that was used for the deployment. Note this will only work if the project is configured to use a Git repository.",
+				Computed:    true,
+				Type:        types.StringType,
+			},
 			"project_settings": {
 				Description:   "Project settings that will be applied to the deployment.",
 				Optional:      true,
