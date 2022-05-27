@@ -95,6 +95,11 @@ Once the build step has completed successfully, a new, immutable deployment will
 				PlanModifiers: tfsdk.AttributePlanModifiers{tfsdk.RequiresReplace()},
 				Type:          types.StringType,
 			},
+			"sha": {
+				Description: "The specific commit hash that was used for the deployment. Note this will only work if the project is configured to use a Git repository.",
+				Computed:    true,
+				Type:        types.StringType,
+			},
 			"project_settings": {
 				Description:   "Project settings that will be applied to the deployment.",
 				Optional:      true,

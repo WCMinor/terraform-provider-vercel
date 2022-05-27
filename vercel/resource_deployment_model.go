@@ -34,6 +34,7 @@ type Deployment struct {
 	URL             types.String     `tfsdk:"url"`
 	DeleteOnDestroy types.Bool       `tfsdk:"delete_on_destroy"`
 	Ref             types.String     `tfsdk:"ref"`
+	SHA             types.String     `tfsdk:"sha"`
 }
 
 // setIfNotUnknown is a helper function to set a value in a map if it is not unknown.
@@ -195,5 +196,6 @@ func convertResponseToDeployment(response client.DeploymentResponse, plan Deploy
 		ProjectSettings: plan.ProjectSettings.fillNulls(),
 		DeleteOnDestroy: plan.DeleteOnDestroy,
 		Ref:             types.String{Value: response.GitSource.Ref, Unknown: false, Null: response.GitSource.Ref == ""},
+		SHA:             types.String{Value: response.GitSource.SHA, Unknown: false, Null: response.GitSource.SHA == ""},
 	}
 }
