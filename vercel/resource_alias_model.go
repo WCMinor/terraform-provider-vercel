@@ -17,6 +17,11 @@ type Alias struct {
 // Where possible, values from the API response are used to populate state. If not possible,
 // values from plan are used.
 func convertResponseToAlias(response client.AliasResponse, plan Alias) Alias {
+	//Use plan value if alias is not present
+	deploymentId := plan.DeploymentId
+	if response.DeploymentId != "" {
+		deploymentId = types.String{Value: response.DeploymentId}
+	}
 	return Alias{
 		Alias:        plan.Alias,
 		ID:           types.String{Value: response.UID},
